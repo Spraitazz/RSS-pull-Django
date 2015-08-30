@@ -1,0 +1,1 @@
+Small python webapp using Django to pull an RSS feed done as a task for Ubiquity Press
