@@ -1,0 +1,24 @@
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<div id="rssItems">
+
+</div>
+<div id="other">
+
+</div>
+<script>
+var timer = window.setInterval(function() {
+$.ajax({
+url: "/pull/GetFeed",
+type: "get"
+
+}).done(function(data) {
+
+$("#other").html(data);
+
+});
+
+}, 15000);
+
+
+
+</script>
