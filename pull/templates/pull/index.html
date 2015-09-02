@@ -1,4 +1,6 @@
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<div id="status"></div>
+<input id="search" type="text" placeholder="search by title">
 <div id="rssItems">
 
 </div>
@@ -6,19 +8,63 @@
 
 </div>
 <script>
-var timer = window.setInterval(function() {
-$.ajax({
-url: "/pull/GetFeed",
-type: "get"
 
-}).done(function(data) {
 
-$("#other").html(data);
 
-});
+function getFeed() {
+    var itemCount = $(".rssItem").length
+    var lastDate = $("#item"+(itemCount-1) + "> .date").html()
+    console.log(lastDate)
+   
+    $.ajax({
+        url: "/pull/GetFeed",
+        type: "get",
+        data: {userLastDate: lastDate}
 
-}, 15000);
 
+    }).done(function(data) {        
+        if (data === "-") {
+        //no items in DB
+            $("#status").html("no items in DB");
+        } 
+        else {
+            //new items
+            if (data.length > 0) {
+                console.log("ok");
+                var arr = JSON.parse(data);
+                console.log(arr.length)
+                for (var i = 0; i < arr.length; i++) {
+                    console.log("in loop");
+                    var titleDiv = "<div class=\"title\">"+arr[i].title+"</div>";
+                    var descriptionDiv = "<div class=\"description\">"+arr[i].description+"</div>";
+                    var dateDiv = "<div class=\"date\" style=\"display:none;\">"+arr[i].date+"</div>";
+                    var url = "<div class=\"url\">"+arr[i].url+"</div>";
+                    $("<div/>", {
+                        id: "item" + i,
+                        "class": "rssItem",
+                        html: titleDiv + descriptionDiv + dateDiv + url
+
+                    }).append($("#rssItems"));
+
+                    
+                }
+            }
+            else {
+                //no new items to add
+            }
+
+
+        
+
+        }
+    //$("#other").html(data);
+
+    });
+
+}
+
+getFeed();
+var timer = window.setInterval(function() {getFeed()}, 10000);
 
 
 </script>

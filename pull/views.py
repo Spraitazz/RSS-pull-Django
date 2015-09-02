@@ -11,4 +11,4 @@ def index(request):
     return render(request, "pull/index.html", context)
     
 def GetFeed(request):
-    return HttpResponse(Getter.getFeed())
+    return HttpResponse(Getter.getFeed(request.GET.get("userLastDate","")))
