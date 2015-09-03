@@ -11,7 +11,7 @@ Make comparisons in UTC, show to user in EDT
 UTC.localize(datetime) -> compare
 EDT.localize(datetime) -> user
 '''
-# Create your models here.
+#RSS item model
 class Item(models.Model):
     title = models.CharField(max_length=255)
     url = models.CharField(max_length=255)
@@ -19,9 +19,10 @@ class Item(models.Model):
     date = models.DateTimeField("date published")    
     #unique id for feed item
     guid = models.CharField(max_length=63, unique=True, default=0)
-    
+
+#MIGRATIONS WON'T WORK UNLESS ALL CODE BELOW IS COMMENTED OUT
 class Getter(models.Manager):
-    #using phys.org news rss feed 
+    
     
     def getFeed(userLastDate):  
         #fields - title, link, description, pubDate
@@ -75,7 +76,8 @@ class Getter(models.Manager):
                 
             return json.dumps(toReturn)     
         
-    def pullFeed():        
+    def pullFeed(): 
+        #using phys.org news rss feed 
         rssFeed = feedparser.parse("http://phys.org/rss-feed/")
         feedList = rssFeed.entries
         
@@ -88,27 +90,30 @@ class Getter(models.Manager):
             
         if lastItemDate == None:
             #no items yet, get full feed, save to DB
-            for i in range(0, len(feedList)):            
-                dateTime = datetime(*(feedList[i].published_parsed[0:6]))
-                dateTime = UTC.localize(dateTime)           
-                q = Item(title = feedList[i].title, url = feedList[i].link, description = feedList[i].description, date = dateTime, guid=feedList[i].guid)
-               
+            for i in range(0, len(feedList)):    
+                #EDT - UTC
+                dateTime = UTC.localize(datetime(*(feedList[i].published_parsed[0:6])))                
+                
+                q = Item(title = feedList[i].title, url = feedList[i].link, description = feedList[i].description, date = dateTime, guid=feedList[i].guid)               
                 try:
                     q.save()
                 except IntegrityError:
+                    #ignore duplicate insert error
                     pass
+            #for info        
             return len(feedList) 
         else:
             #items exist in DB
             nextItemDate = UTC.localize(datetime(*(feedList[0].published_parsed[0:6])))
             k = 0
-            #let's find from which feed item the new (compared to current record) items begin
+            #Find from which feed item the new (compared to current record) items begin
             while ((nextItemDate - lastItemDate).total_seconds() > 0):                
                 nextItemDate = UTC.localize(datetime(*(feedList[k].published_parsed[0:6])))
                 k+=1
+                
             for i in range(0, k):
-                dateTime = datetime(*(feedList[i].published_parsed[0:6]))
-                dateTime = UTC.localize(dateTime)           
+                dateTime = UTC.localize(datetime(*(feedList[i].published_parsed[0:6])))
+                        
                 q = Item(title = feedList[i].title, url = feedList[i].link, description = feedList[i].description, date = dateTime, guid=feedList[i].guid)
                
                 try:
@@ -118,6 +123,6 @@ class Getter(models.Manager):
             return k
             
     
-    pullFeed()
     
+ 
 

@@ -8,7 +8,7 @@ class Command(BaseCommand):
     
         
     def handle(self, *args, **options):
-        #check for new entries every 5 minutes
+        #check for new entries every x minutes?
         #while True:
         result = Getter.pullFeed()
         if result == 0:

@@ -8,61 +8,50 @@
 
 </div>
 <script>
-
-
-
 function getFeed() {
-    var itemCount = $(".rssItem").length
-    var lastDate = $("#item"+(itemCount-1) + "> .date").html()
-    console.log(lastDate)
+    var itemCount = $(".rssItem").length;
+    var lastDate = $("#item"+(itemCount-1) + "> .date").html();    
    
     $.ajax({
+    
         url: "/pull/GetFeed",
         type: "get",
         data: {userLastDate: lastDate}
-
-
-    }).done(function(data) {        
+        
+    }).done(function(data) {
+    
         if (data === "-") {
         //no items in DB
-            $("#status").html("no items in DB");
+            $("#status").html("No RSS items currently available");
         } 
         else {
             //new items
-            if (data.length > 0) {
-                console.log("ok");
+            if (data.length > 0) {                
                 var arr = JSON.parse(data);
-                console.log(arr.length)
+                
                 for (var i = 0; i < arr.length; i++) {
                     console.log("in loop");
                     var titleDiv = "<div class=\"title\">"+arr[i].title+"</div>";
                     var descriptionDiv = "<div class=\"description\">"+arr[i].description+"</div>";
                     var dateDiv = "<div class=\"date\" style=\"display:none;\">"+arr[i].date+"</div>";
                     var url = "<div class=\"url\">"+arr[i].url+"</div>";
+                    
                     $("<div/>", {
                         id: "item" + i,
                         "class": "rssItem",
                         html: titleDiv + descriptionDiv + dateDiv + url
-
-                    }).append($("#rssItems"));
-
+                    }).append($("#rssItems")); 
                     
                 }
             }
             else {
                 //no new items to add
             }
-
-
-        
-
         }
-    //$("#other").html(data);
-
     });
-
 }
 
+//check for updates regularly
 getFeed();
 var timer = window.setInterval(function() {getFeed()}, 10000);
 
